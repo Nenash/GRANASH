@@ -1,19 +1,18 @@
 #pragma once
 #include <JuceHeader.h>
+#include "PluginProcessor.h"
 
-class GranularSynthAudioProcessor;
-
-class PluginEditor : public juce::AudioProcessorEditor
+class GranularSynthAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    PluginEditor (GranularSynthAudioProcessor&);
-    ~PluginEditor() override;
+    GranularSynthAudioProcessorEditor(GranularSynthAudioProcessor&);
+    ~GranularSynthAudioProcessorEditor() override;
 
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
-    GranularSynthAudioProcessor& processorRef;
+    GranularSynthAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthAudioProcessorEditor)
 };
