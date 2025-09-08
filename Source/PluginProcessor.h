@@ -3,6 +3,7 @@
 #include "GranularEngine.h"
 #include "GranularVoice.h"
 #include "EffectsChain.h"
+#include "Grain.h"
 
 class GranularSynthAudioProcessor : public juce::AudioProcessor
 {
@@ -22,12 +23,22 @@ public:
     // Parameters
     juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    
+    // Parameter update
+    void updateVoiceParameters();
 
 private:
     juce::Synthesiser synth;
     GranularEngine engine;
     EffectsChain effects;
     juce::AudioProcessorValueTreeState apvts;
+    
+    // Parameter pointers for efficient access
+    std::atomic<float>* grainSizeParam = nullptr;
+    std::atomic<float>* densityParam = nullptr;
+    std::atomic<float>* positionParam = nullptr;
+    std::atomic<float>* jitterParam = nullptr;
+    std::atomic<float>* windowTypeParam = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GranularSynthAudioProcessor)
 };

@@ -55,13 +55,30 @@ GranularSynthAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    // Example params
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("grainSize", "Grain Size",
-                                                                  1.0f, 500.0f, 100.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("density", "Density",
-                                                                  1.0f, 100.0f, 20.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("pitch", "Pitch",
-                                                                  -24.0f, 24.0f, 0.0f));
+    // Granular synthesis parameters
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "grainSize", "Grain Size", 
+        juce::NormalisableRange<float>(10.0f, 500.0f, 1.0f), 100.0f,
+        "ms"));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "density", "Density",
+        juce::NormalisableRange<float>(0.1f, 100.0f, 0.1f), 10.0f,
+        "grains/sec"));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "position", "Position",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f,
+        "%"));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "jitter", "Position Jitter",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.1f,
+        "%"));
+    
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "windowType", "Window Type",
+        juce::StringArray{"Hanning", "Gaussian", "Triangular", "Blackman"}, 0));
 
     return { params.begin(), params.end() };
 }

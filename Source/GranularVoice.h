@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "GranularSound.h"
+#include "Grain.h"
 
 class GranularEngine;
 
@@ -25,28 +26,46 @@ public:
                           int startSample,
                           int numSamples) override;
 
-    // === Grain Engine Basics ===
-    void setSampleBuffer(juce::AudioBuffer<float>* buffer) { sampleBuffer = buffer; }
-
-    void setGrainSize(int sizeInSamples) { grainSize = sizeInSamples; }
+    // === Grain Engine Parameters ===
+    void setGrainSize(float sizeMs) { grainSizeMs = sizeMs; }
     void setGrainDensity(float grainsPerSecond) { density = grainsPerSecond; }
     void setPitchRatio(float ratio) { pitchRatio = ratio; }
+    void setPosition(float pos) { samplePosition = juce::jlimit(0.0f, 1.0f, pos); }
+    void setPositionJitter(float jitter) { positionJitter = juce::jlimit(0.0f, 1.0f, jitter); }
+    void setWindowType(WindowType type) { windowType = type; }
 
 private:
-    float getNextGrainSample();
-
+    void updateGrainScheduling(int numSamples);
+    void triggerNewGrain();
+    float getRandomizedPosition();
+    
     // === State ===
-    bool active { false };
-    float gain { 0.0f };
-    float noteFrequency { 0.0f };
+    bool isNoteActive { false };
+    float noteVelocity { 0.0f };
+    float noteFrequency { 440.0f };
+    int midiNote { 60 };
 
     GranularEngine* engine { nullptr };
-    juce::AudioBuffer<float>* sampleBuffer { nullptr };
 
-    int grainSize { 2048 };      // in samples
-    int grainStart { 0 };
-    int grainSamplePos { 0 };
-    float density { 10.0f };     // grains/sec
-    float pitchRatio { 1.0f };   // pitch shifting
-    int currentSamplePos { 0 };
+    // === Grain Parameters ===
+    float grainSizeMs { 100.0f };        // Grain size in milliseconds
+    float density { 10.0f };             // Grains per second
+    float pitchRatio { 1.0f };           // Pitch shifting ratio
+    float samplePosition { 0.0f };       // Position in sample (0.0 to 1.0)
+    float positionJitter { 0.1f };       // Random position variation
+    WindowType windowType { WindowType::Hanning };
+    
+    // === Grain Management ===
+    static constexpr int maxGrains = 32;
+    std::array<Grain, maxGrains> grains;
+    int nextGrainIndex { 0 };
+    
+    // === Scheduling ===
+    double sampleRate { 44100.0 };
+    float samplesUntilNextGrain { 0.0f };
+    juce::Random random;
+    
+    // === Smoothing ===
+    juce::LinearSmoothedValue<float> pitchSmoothed;
+    juce::LinearSmoothedValue<float> gainSmoothed;
 };
