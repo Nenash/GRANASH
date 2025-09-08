@@ -64,6 +64,25 @@ void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesP
     synth.setCurrentPlaybackSampleRate (sampleRate);
     engine.prepare (sampleRate, samplesPerBlock);
     effects.prepare (sampleRate, samplesPerBlock);
+
+    // TEST: load a file at startup (e.g., from desktop)
+    auto testFile = juce::File::getSpecialLocation(juce::File::userDesktopDirectory)
+                        .getChildFile("test.wav");
+
+    if (engine.loadFile(testFile))
+    {
+        // Pass buffer into all voices
+        for (int i = 0; i < synth.getNumVoices(); ++i)
+            if (auto* v = dynamic_cast<GranularVoice*>(synth.getVoice(i)))
+                v->setSampleBuffer(engine.getSampleBuffer());
+    }
+}
+
+void GranularSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    synth.setCurrentPlaybackSampleRate (sampleRate);
+    engine.prepare (sampleRate, samplesPerBlock);
+    effects.prepare (sampleRate, samplesPerBlock);
 }
 
 void GranularSynthAudioProcessor::releaseResources() {}
